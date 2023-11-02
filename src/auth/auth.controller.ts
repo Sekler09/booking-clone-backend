@@ -5,12 +5,14 @@ import {
   HttpStatus,
   Post,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 
 import { RtGuard } from 'src/common/guards/rt.guard';
 import { AtGuard } from 'src/common/guards/at.guard';
 
-import { Tokens } from './types/tokens.type';
+import { Token } from './types/tokens.type';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
@@ -19,29 +21,38 @@ import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signin')
-  @HttpCode(HttpStatus.OK)
-  signin(@Body() dto: AuthDto): Promise<Tokens> {
-    return this.authService.signin(dto);
-  }
-
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() dto: AuthDto): Promise<Tokens> {
-    return this.authService.signup(dto);
+  signup(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Token> {
+    return this.authService.signup(dto, res);
+  }
+
+  @Post('signin')
+  @HttpCode(HttpStatus.OK)
+  signin(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Token> {
+    return this.authService.signin(dto, res);
   }
 
   @Post('logout')
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUser('sub') userId: number) {
-    return this.authService.logout(userId);
+  logout(@Res({ passthrough: true }) res: Response) {
+    return this.authService.logout(res);
   }
 
   @Post('refresh')
   @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
-  refreshTokens(@GetCurrentUser() user: Express.User): Promise<Tokens> {
-    return this.authService.refreshTokens(user['sub'], user['refreshToken']);
+  refreshTokens(
+    @GetCurrentUser('sub') userId: number,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Token> {
+    return this.authService.refreshTokens(userId, res);
   }
 }
