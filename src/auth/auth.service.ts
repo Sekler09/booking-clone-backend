@@ -27,7 +27,10 @@ export class AuthService {
     const newUser = this.userService.create({ ...dto, password: hashPass });
 
     const tokens = await this.getTokens(newUser.id, newUser.email);
-    res.cookie('refreshToken', tokens.refresh_token);
+    res.cookie('refreshToken', tokens.refresh_token, {
+      secure: true,
+      httpOnly: true,
+    });
 
     return { access_token: tokens.access_token };
   }
@@ -43,7 +46,10 @@ export class AuthService {
       throw new UnauthorizedException('Email or password is incorrect');
 
     const tokens = await this.getTokens(user.id, user.email);
-    res.cookie('refreshToken', tokens.refresh_token);
+    res.cookie('refreshToken', tokens.refresh_token, {
+      secure: true,
+      httpOnly: true,
+    });
 
     return { access_token: tokens.access_token };
   }
@@ -58,7 +64,10 @@ export class AuthService {
     if (!user) throw new ForbiddenException('Access denied');
 
     const tokens = await this.getTokens(user.id, user.email);
-    res.cookie('refreshToken', tokens.refresh_token);
+    res.cookie('refreshToken', tokens.refresh_token, {
+      secure: true,
+      httpOnly: true,
+    });
 
     return { access_token: tokens.access_token };
   }
