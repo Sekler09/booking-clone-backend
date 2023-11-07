@@ -9,7 +9,7 @@ import { Response } from 'express';
 
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
-import { Token } from './types/tokens.type';
+import { Tokens } from './types/tokens.type';
 
 @Injectable()
 export class AuthService {
@@ -18,24 +18,22 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup(dto: AuthDto, res: Response): Promise<Token> {
+  async signup(dto: AuthDto, res: Response): Promise<Tokens> {
     const userExists = this.userService.findByEmail(dto.email);
-    if (userExists)
+    if (userExists) {
       throw new ForbiddenException('User with this email is already exists');
+    }
 
     const hashPass = await this.hashData(dto.password);
     const newUser = this.userService.create({ ...dto, password: hashPass });
 
     const tokens = await this.getTokens(newUser.id, newUser.email);
-    res.cookie('refreshToken', tokens.refresh_token, {
-      secure: true,
-      httpOnly: true,
-    });
+    this.setTokenCookies(res, tokens);
 
-    return { access_token: tokens.access_token };
+    return tokens;
   }
 
-  async signin(dto: AuthDto, res: Response): Promise<Token> {
+  async signin(dto: AuthDto, res: Response): Promise<Tokens> {
     const user = this.userService.findByEmail(dto.email);
 
     if (!user)
@@ -46,30 +44,41 @@ export class AuthService {
       throw new UnauthorizedException('Email or password is incorrect');
 
     const tokens = await this.getTokens(user.id, user.email);
-    res.cookie('refreshToken', tokens.refresh_token, {
-      secure: true,
-      httpOnly: true,
-    });
+    this.setTokenCookies(res, tokens);
 
-    return { access_token: tokens.access_token };
+    return tokens;
   }
 
   logout(res: Response) {
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
+      path: '/auth/refresh',
+    });
+    res.clearCookie('accessToken', {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 15, // 15min
+      path: '/',
+    });
   }
 
-  async refreshTokens(userId: number, res: Response) {
+  async refreshTokens(userId: number, res: Response): Promise<Tokens> {
     const user = this.userService.findOne(userId);
 
     if (!user) throw new ForbiddenException('Access denied');
 
     const tokens = await this.getTokens(user.id, user.email);
-    res.cookie('refreshToken', tokens.refresh_token, {
-      secure: true,
-      httpOnly: true,
-    });
+    this.setTokenCookies(res, tokens);
 
-    return { access_token: tokens.access_token };
+    return tokens;
+  }
+
+  getProfile(userId: number) {
+    return this.userService.findOne(userId);
   }
 
   hashData(data: string) {
@@ -104,5 +113,22 @@ export class AuthService {
       access_token: at,
       refresh_token: rt,
     };
+  }
+
+  setTokenCookies(res: Response, tokens: Tokens) {
+    res.cookie('refreshToken', tokens.refresh_token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
+      path: '/auth/refresh',
+    });
+    res.cookie('accessToken', tokens.access_token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 15, // 15min
+      path: '/',
+    });
   }
 }

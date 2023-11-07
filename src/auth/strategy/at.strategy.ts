@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
+
+import cookieExtractor from './extractors/cookie.extractor';
 
 type JwtPayload = {
   sub: string;
@@ -11,7 +13,7 @@ type JwtPayload = {
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: cookieExtractor('accessToken'),
       secretOrKey: 'at-secret',
     });
   }
