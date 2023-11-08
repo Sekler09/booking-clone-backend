@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 
-import cookieExtractor from './extractors/cookie.extractor';
+import cookieExtractor from '../../common/extractors/cookie.extractor';
 
 type JwtPayload = {
   sub: string;

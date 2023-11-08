@@ -55,7 +55,7 @@ export class AuthService {
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
-      path: '/auth/refresh',
+      path: '/',
     });
     res.clearCookie('accessToken', {
       secure: true,
@@ -94,7 +94,7 @@ export class AuthService {
         },
         {
           secret: 'at-secret',
-          expiresIn: 60 * 15,
+          expiresIn: 15,
         },
       ),
       this.jwtService.signAsync(
@@ -110,20 +110,20 @@ export class AuthService {
     ]);
 
     return {
-      access_token: at,
-      refresh_token: rt,
+      accessToken: at,
+      refreshToken: rt,
     };
   }
 
   setTokenCookies(res: Response, tokens: Tokens) {
-    res.cookie('refreshToken', tokens.refresh_token, {
+    res.cookie('refreshToken', tokens.refreshToken, {
       secure: true,
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
-      path: '/auth/refresh',
+      path: '/',
     });
-    res.cookie('accessToken', tokens.access_token, {
+    res.cookie('accessToken', tokens.accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: 'none',

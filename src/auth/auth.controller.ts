@@ -10,14 +10,12 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-import { RtGuard } from 'src/common/guards/rt.guard';
-import { AtGuard } from 'src/common/guards/at.guard';
-
 import { Tokens } from './types/tokens.type';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { CustomAuthGuard } from '../common/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -42,24 +40,14 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(AtGuard)
+  @UseGuards(CustomAuthGuard)
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
     return this.authService.logout(res);
   }
 
-  @Post('refresh')
-  @UseGuards(RtGuard)
-  @HttpCode(HttpStatus.OK)
-  refreshTokens(
-    @GetCurrentUser('sub') userId: number,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, res);
-  }
-
   @Get('profile')
-  @UseGuards(AtGuard)
+  @UseGuards(CustomAuthGuard)
   @HttpCode(HttpStatus.OK)
   getProfile(@GetCurrentUser('sub') userId: number): User {
     return this.authService.getProfile(userId);
