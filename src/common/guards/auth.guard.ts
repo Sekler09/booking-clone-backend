@@ -36,11 +36,14 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
         })
         .catch(() => false);
 
-      if (isValidAccessToken) return this.activate(context);
+      if (isValidAccessToken) {
+        return this.activate(context);
+      }
 
       const refreshToken = request.cookies['refreshToken'];
-      if (!refreshToken)
+      if (!refreshToken) {
         throw new UnauthorizedException('Refresh token is not set');
+      }
 
       const isValidRefreshToken = await this.jwtService
         .verifyAsync(refreshToken, { secret: 'rt-secret' })
@@ -49,8 +52,9 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
         })
         .catch(() => false);
 
-      if (!isValidRefreshToken)
+      if (!isValidRefreshToken) {
         throw new UnauthorizedException('Refresh token is not valid');
+      }
 
       const userId = this.jwtService.decode(refreshToken).sub;
       const user = this.userService.findOne(userId);

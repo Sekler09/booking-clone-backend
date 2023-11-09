@@ -36,12 +36,14 @@ export class AuthService {
   async signin(dto: AuthDto, res: Response): Promise<Tokens> {
     const user = this.userService.findByEmail(dto.email);
 
-    if (!user)
+    if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
+    }
 
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatches)
+    if (!passwordMatches) {
       throw new UnauthorizedException('Email or password is incorrect');
+    }
 
     const tokens = await this.getTokens(user.id, user.email);
     this.setTokenCookies(res, tokens);
@@ -69,7 +71,9 @@ export class AuthService {
   async refreshTokens(userId: number, res: Response): Promise<Tokens> {
     const user = this.userService.findOne(userId);
 
-    if (!user) throw new ForbiddenException('Access denied');
+    if (!user) {
+      throw new ForbiddenException('Access denied');
+    }
 
     const tokens = await this.getTokens(user.id, user.email);
     this.setTokenCookies(res, tokens);
@@ -86,7 +90,7 @@ export class AuthService {
   }
 
   async getTokens(userId: number, email: string) {
-    const [at, rt] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
@@ -110,8 +114,8 @@ export class AuthService {
     ]);
 
     return {
-      accessToken: at,
-      refreshToken: rt,
+      accessToken,
+      refreshToken,
     };
   }
 
