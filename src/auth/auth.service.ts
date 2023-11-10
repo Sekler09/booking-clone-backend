@@ -52,20 +52,7 @@ export class AuthService {
   }
 
   logout(res: Response) {
-    res.clearCookie('refreshToken', {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
-      path: '/',
-    });
-    res.clearCookie('accessToken', {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 15, // 15min
-      path: '/',
-    });
+    this.clearTokenCookies(res);
   }
 
   async refreshTokens(userId: number, res: Response): Promise<Tokens> {
@@ -128,6 +115,23 @@ export class AuthService {
       path: '/',
     });
     res.cookie('accessToken', tokens.accessToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 15, // 15min
+      path: '/',
+    });
+  }
+
+  clearTokenCookies(res: Response) {
+    res.clearCookie('refreshToken', {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
+      path: '/',
+    });
+    res.clearCookie('accessToken', {
       secure: true,
       httpOnly: true,
       sameSite: 'none',

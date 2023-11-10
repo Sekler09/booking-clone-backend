@@ -55,9 +55,13 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
       if (!isValidRefreshToken) {
         throw new UnauthorizedException('Refresh token is not valid');
       }
-
       const userId = this.jwtService.decode(refreshToken).sub;
       const user = this.userService.findOne(userId);
+
+      if (!user) {
+        throw new UnauthorizedException('User not exists');
+      }
+
       const tokens = await this.authService.getTokens(user.id, user.email);
 
       request.cookies['accessToken'] = tokens.accessToken;
@@ -67,7 +71,7 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
 
       return this.activate(context);
     } catch (err) {
-      this.authService.logout(response);
+      this.authService.clearTokenCookies(response);
       return false;
     }
   }

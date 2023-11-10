@@ -47,20 +47,6 @@ export const roomsDb: Room[] = [
     bookedDates: ['2023-09-23'],
   },
   {
-    id: 102,
-    hotelId: 1,
-    roomType: 'Double',
-    capacity: 2,
-    pricePerNight: 150,
-    bookedDates: [
-      '2023-10-7',
-      '2023-11-14',
-      '2023-11-15',
-      '2023-11-16',
-      '2023-11-17',
-    ],
-  },
-  {
     id: 301,
     hotelId: 3,
     roomType: 'Single',
