@@ -1,8 +1,9 @@
 import { Transform, Type } from 'class-transformer';
-import { IsDate, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsString, IsOptional } from 'class-validator';
 
-export class GetHotelsQuery {
+export class GetAvailableHotelsQuery {
   @IsString()
+  @IsOptional()
   @Transform(({ value }) => value.toLowerCase())
   city: string;
 

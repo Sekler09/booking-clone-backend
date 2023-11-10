@@ -3,6 +3,7 @@ import { Hotel, hotelsDb } from './entities/hotel.entity';
 import { RoomService } from 'src/room/room.service';
 import { ReviewService } from 'src/review/review.service';
 import { HotelDto } from './dto/hotel.dto';
+import { GetAvailableHotelsQuery } from './entities/get-hotels-query.entity';
 
 @Injectable()
 export class HotelService {
@@ -12,18 +13,25 @@ export class HotelService {
   ) {}
   private hotels: Hotel[] = [...hotelsDb];
 
-  findAvailable(
-    city: string,
-    from: Date,
-    to: Date,
-    capacity: number,
-    count: number,
-  ): HotelDto[] {
+  findAllAvailable({
+    city,
+    from,
+    to,
+    adults,
+    children,
+    rooms,
+  }: GetAvailableHotelsQuery): HotelDto[] {
     const hotelsInCity = this.hotels.filter((hotel) => hotel.city === city);
 
     const availableHotels = hotelsInCity.filter((hotel) => {
-      const rooms = this.roomService.getRoomsByHotel(hotel.id);
-      return checkRoomsAvailability(rooms, from, to, capacity, count);
+      const hotelRooms = this.roomService.getAvailableRoomsByHotel(hotel.id, {
+        from,
+        to,
+        adults,
+        children,
+        rooms,
+      });
+      return hotelRooms.length;
     });
 
     return availableHotels.map((hotel) => ({
@@ -33,7 +41,10 @@ export class HotelService {
     }));
   }
 
-  findById(id: number) {
+  findAvailableById(
+    id: number,
+    queryFilters: Omit<GetAvailableHotelsQuery, 'city'>,
+  ) {
     const hotel = this.hotels.find((hotel) => hotel.id === id);
     if (!hotel) {
       throw new BadRequestException('no hotel with such id');
@@ -41,31 +52,7 @@ export class HotelService {
     return {
       ...hotel,
       reviews: this.reviewService.getReviewsByHotel(hotel.id),
-      rooms: this.roomService.getRoomsByHotel(hotel.id),
+      rooms: this.roomService.getAvailableRoomsByHotel(hotel.id, queryFilters),
     };
   }
-}
-
-function checkRoomsAvailability(rooms, from, to, capacity, count) {
-  if (rooms.length < count) {
-    return false;
-  }
-
-  const availableRooms = rooms.filter(
-    (room) =>
-      !room.bookedDates.find(
-        (date) => new Date(date) >= from && new Date(date) <= to,
-      ),
-  );
-
-  if (availableRooms.length < count) {
-    return false;
-  }
-
-  return (
-    availableRooms
-      .sort((a, b) => b.capacity - a.capacity)
-      .slice(0, count)
-      .reduce((sum, room) => sum + room.capacity, 0) >= capacity
-  );
 }
