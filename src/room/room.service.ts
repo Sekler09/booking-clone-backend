@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Room, roomsDb } from './entities/room.entity';
 import { GetAvailableHotelsQuery } from 'src/hotel/entities/get-hotels-query.entity';
+import BookRoomDto from './dto/book-room.dto';
 
 @Injectable()
 export class RoomService {
@@ -20,6 +25,7 @@ export class RoomService {
     }: Omit<GetAvailableHotelsQuery, 'city'>,
   ): Room[] {
     const hotelRooms = this.getRoomsByHotel(hotelId);
+
     if (
       checkRoomsAvailability(hotelRooms, from, to, children + adults, rooms)
     ) {
@@ -31,14 +37,37 @@ export class RoomService {
               new Date(date) <= new Date(to),
           ),
       );
+
       if (rooms === 1) {
         return availableRooms.filter(
-          (room) => room.capacity === children + adults,
+          (room) => room.capacity >= children + adults,
         );
       }
+
       return availableRooms;
     }
     return [];
+  }
+
+  book(roomId: number, hotelId: number, { from, to }: BookRoomDto) {
+    const room = this.rooms.find(
+      (room) => room.id === roomId && room.hotelId === hotelId,
+    );
+
+    if (!room) {
+      throw new NotFoundException('this room not exists');
+    }
+
+    const isRoomAvailable = !room.bookedDates.find(
+      (date) =>
+        new Date(date) >= new Date(from) && new Date(date) <= new Date(to),
+    );
+
+    if (!isRoomAvailable) {
+      throw new ForbiddenException('room is already booked in this dates');
+    }
+
+    room.bookedDates.push(...[from, to]);
   }
 }
 
