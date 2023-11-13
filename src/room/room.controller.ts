@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { RoomService } from './room.service';
 import { CustomAuthGuard } from 'src/common/guards/auth.guard';
@@ -8,7 +8,7 @@ import BookRoomDto from './dto/book-room.dto';
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
-  @Patch('/:id/book')
+  @Post('/:id/book')
   @UseGuards(CustomAuthGuard)
   bookHotel(
     @Param('id') id: number,

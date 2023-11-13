@@ -72,7 +72,7 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
       return this.activate(context);
     } catch (err) {
       this.authService.clearTokenCookies(response);
-      return false;
+      throw err;
     }
   }
   async activate(context: ExecutionContext): Promise<boolean> {
