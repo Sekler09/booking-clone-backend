@@ -7,13 +7,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
 import { HotelService } from './hotel.service';
 import { HotelDto } from './dto/hotel.dto';
-import { GetAvailableHotelsQuery } from './entities/get-hotels-query.entity';
+import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { CustomAuthGuard } from 'src/common/guards/auth.guard';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
 
+@ApiTags('hotels')
 @Controller('hotels')
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
