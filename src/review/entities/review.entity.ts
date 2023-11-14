@@ -1,9 +1,34 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class Review {
+  @ApiProperty({
+    description: 'id of the review',
+  })
   id: number;
+
+  @ApiProperty({
+    description: 'id of the room that review belongs to',
+  })
   roomId: number;
+
+  @ApiProperty({
+    description: 'id of the hotel that review belongs to',
+  })
   hotelId: number;
+
+  @ApiProperty({
+    description: 'name of the reviewer',
+  })
   username: string;
+
+  @ApiProperty({
+    description: 'rating of the review',
+  })
   rating: number;
+
+  @ApiProperty({
+    description: 'comment of the review',
+  })
   comment: string;
 }
 

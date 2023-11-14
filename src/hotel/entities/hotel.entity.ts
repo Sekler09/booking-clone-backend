@@ -1,9 +1,34 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class Hotel {
+  @ApiProperty({
+    description: 'id of the hotel',
+  })
   id: number;
+
+  @ApiProperty({
+    description: 'name of the hotel',
+  })
   name: string;
+
+  @ApiProperty({
+    description: 'city where the hotel locates',
+  })
   city: string;
+
+  @ApiProperty({
+    description: 'address of the hotel',
+  })
   address: string;
+
+  @ApiProperty({
+    description: 'distance from the hotel to the center of the city',
+  })
   distanceFromCenter: number;
+
+  @ApiProperty({
+    description: 'image of the hotel',
+  })
   image: string;
 }
 
