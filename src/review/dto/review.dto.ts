@@ -24,10 +24,4 @@ export class ReviewDto {
   @Max(5)
   @Min(0)
   rating: number;
-
-  @IsNumber()
-  hotelId: number;
-
-  @IsNumber()
-  roomId: number;
 }

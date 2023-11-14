@@ -21,8 +21,13 @@ export class ReviewService {
     return this.reviews.filter((review) => review.hotelId === hotelId);
   }
 
-  postReview(reviewDto: ReviewDto) {
-    const review: Review = { ...reviewDto, id: this.idCounter++ };
+  postReview(hotelId: number, roomId: number, reviewDto: ReviewDto) {
+    const review: Review = {
+      id: this.idCounter++,
+      hotelId,
+      roomId,
+      ...reviewDto,
+    };
     this.reviews.push(review);
   }
 }

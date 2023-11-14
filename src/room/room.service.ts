@@ -69,6 +69,10 @@ export class RoomService {
 
     room.bookedDates.push(...[from, to]);
   }
+
+  doesRoomExist(hotelId: number, roomId: number) {
+    return !!this.getRoomsByHotel(hotelId).find((room) => room.id === roomId);
+  }
 }
 
 function checkRoomsAvailability(rooms, from, to, capacity, count) {

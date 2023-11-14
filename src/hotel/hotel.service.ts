@@ -1,9 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Hotel, hotelsDb } from './entities/hotel.entity';
 import { RoomService } from 'src/room/room.service';
 import { ReviewService } from 'src/review/review.service';
 import { HotelDto } from './dto/hotel.dto';
 import { GetAvailableHotelsQuery } from './entities/get-hotels-query.entity';
+import BookRoomDto from 'src/room/dto/book-room.dto';
+import { ReviewDto } from 'src/review/dto/review.dto';
 
 @Injectable()
 export class HotelService {
@@ -54,5 +60,17 @@ export class HotelService {
       reviews: this.reviewService.getReviewsByHotel(hotel.id),
       rooms: this.roomService.getAvailableRoomsByHotel(hotel.id, queryFilters),
     };
+  }
+
+  bookRoom(id: number, roomId: number, dto: BookRoomDto) {
+    return this.roomService.book(roomId, id, dto);
+  }
+
+  postReview(id: number, roomId: number, dto: ReviewDto) {
+    if (!this.roomService.doesRoomExist(id, roomId)) {
+      throw new NotFoundException('Room does not exist');
+    }
+
+    return this.reviewService.postReview(id, roomId, dto);
   }
 }
