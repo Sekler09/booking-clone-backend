@@ -1,9 +1,34 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class Room {
+  @ApiProperty({
+    description: 'id of the room',
+  })
   id: number;
+
+  @ApiProperty({
+    description: 'id of the hotel that room belongs to',
+  })
   hotelId: number;
+
+  @ApiProperty({
+    description: 'type of the room',
+  })
   roomType: string;
+
+  @ApiProperty({
+    description: 'number of people that can live in the room',
+  })
   capacity: number;
+
+  @ApiProperty({
+    description: 'price per night of the room',
+  })
   pricePerNight: number;
+
+  @ApiProperty({
+    description: 'list of dates when room is not available',
+  })
   bookedDates: string[];
 }
 

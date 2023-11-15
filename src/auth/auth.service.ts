@@ -9,7 +9,7 @@ import { Response } from 'express';
 
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
-import { Tokens } from './types/tokens.type';
+import { Tokens } from './entities/tokens.entity';
 
 @Injectable()
 export class AuthService {

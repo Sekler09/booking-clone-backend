@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Room, roomsDb } from './entities/room.entity';
-import { GetAvailableHotelsQuery } from 'src/hotel/entities/get-hotels-query.entity';
+import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query.dto';
 import BookRoomDto from './dto/book-room.dto';
 
 @Injectable()

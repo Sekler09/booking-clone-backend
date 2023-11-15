@@ -1,13 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Hotel, hotelsDb } from './entities/hotel.entity';
 import { RoomService } from 'src/room/room.service';
 import { ReviewService } from 'src/review/review.service';
 import { HotelDto } from './dto/hotel.dto';
-import { GetAvailableHotelsQuery } from './entities/get-hotels-query.entity';
+import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
 
@@ -53,7 +49,7 @@ export class HotelService {
   ) {
     const hotel = this.hotels.find((hotel) => hotel.id === id);
     if (!hotel) {
-      throw new BadRequestException('no hotel with such id');
+      throw new NotFoundException('no hotel with such id');
     }
     return {
       ...hotel,
