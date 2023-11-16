@@ -56,7 +56,7 @@ export class CustomAuthGuard extends AuthGuard(['jwt', 'jwt-refresh']) {
         throw new UnauthorizedException('Refresh token is not valid');
       }
       const userId = this.jwtService.decode(refreshToken).sub;
-      const user = this.userService.findOne(userId);
+      const user = await this.userService.findOne({ id: userId });
 
       if (!user) {
         throw new UnauthorizedException('User not exists');
