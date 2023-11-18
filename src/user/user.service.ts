@@ -10,13 +10,7 @@ export class UserService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
-  private users: User[] = [
-    {
-      id: 1,
-      email: 'admin',
-      password: '',
-    },
-  ];
+  private users: User[] = [];
 
   private id = 2;
 

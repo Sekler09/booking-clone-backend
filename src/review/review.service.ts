@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Review, reviewDb } from './entities/review.entity';
 import { ReviewDto } from './dto/review.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ReviewService {
+  constructor(
+    @InjectRepository(Review)
+    private reviewsRepository: Repository<Review>,
+    private readonly userService: UserService,
+  ) {}
   private reviews = [...reviewDb];
 
   private idCounter = reviewDb.length + 1;
@@ -21,13 +29,19 @@ export class ReviewService {
     return this.reviews.filter((review) => review.hotelId === hotelId);
   }
 
-  postReview(hotelId: number, roomId: number, reviewDto: ReviewDto) {
-    const review: Review = {
-      id: this.idCounter++,
-      hotelId,
-      roomId,
-      ...reviewDto,
-    };
-    this.reviews.push(review);
+  async postReview(
+    hotelId: number,
+    roomId: number,
+    userId: number,
+    reviewDto: ReviewDto,
+  ) {
+    const user = await this.userService.findOne({ id: userId });
+    const review = new Review();
+    review.comment = reviewDto.comment;
+    review.rating = reviewDto.rating;
+    review.hotelId = hotelId;
+    review.roomId = roomId;
+    review.user = user;
+    await this.reviewsRepository.save(review);
   }
 }

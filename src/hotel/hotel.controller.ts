@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -27,6 +28,7 @@ import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { CustomAuthGuard } from 'src/common/guards/auth.guard';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
+import { Request } from 'express';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -127,7 +129,8 @@ export class HotelController {
     @Param('id') id: number,
     @Param('roomId') roomId: number,
     @Body() reviewDto: ReviewDto,
+    @Req() req: Request,
   ) {
-    this.hotelService.postReview(id, roomId, reviewDto);
+    this.hotelService.postReview(id, roomId, req.user['sub'], reviewDto);
   }
 }

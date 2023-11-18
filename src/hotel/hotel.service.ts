@@ -62,11 +62,11 @@ export class HotelService {
     return this.roomService.book(roomId, id, dto);
   }
 
-  postReview(id: number, roomId: number, dto: ReviewDto) {
+  postReview(id: number, roomId: number, userId: number, dto: ReviewDto) {
     if (!this.roomService.doesRoomExist(id, roomId)) {
       throw new NotFoundException('Room does not exist');
     }
 
-    return this.reviewService.postReview(id, roomId, dto);
+    return this.reviewService.postReview(id, roomId, userId, dto);
   }
 }
