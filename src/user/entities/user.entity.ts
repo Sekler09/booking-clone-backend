@@ -18,14 +18,10 @@ export class User {
   password: string;
 
   @ApiProperty({ type: () => Review })
-  @OneToMany(() => Review, (review) => review.user, {
-    cascade: true,
-  })
+  @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
 
   @ApiProperty({ type: () => Booking })
-  @OneToMany(() => Booking, (booking) => booking.user, {
-    cascade: true,
-  })
+  @OneToMany(() => Booking, (booking) => booking.user)
   bookings: Booking[];
 }

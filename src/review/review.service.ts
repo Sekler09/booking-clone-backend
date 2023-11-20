@@ -33,6 +33,15 @@ export class ReviewService {
           },
         },
       },
+      relations: {
+        user: true,
+      },
+      select: {
+        user: {
+          id: true,
+          email: true,
+        },
+      },
     });
     return reviews;
   }

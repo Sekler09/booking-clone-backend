@@ -33,24 +33,30 @@ export class HotelService {
       },
     });
 
-    const availableHotels = hotelsInCity.filter(async (hotel) => {
-      const hotelRooms = await this.roomService.getAvailableRoomsByHotel(
-        hotel.id,
-        {
-          from,
-          to,
-          adults,
-          children,
-          rooms,
-        },
-      );
-      return hotelRooms.length;
-    });
+    const availability = await Promise.all(
+      hotelsInCity.map(async (hotel) => {
+        const hotelRooms = await this.roomService.getAvailableRoomsByHotel(
+          hotel.id,
+          {
+            from,
+            to,
+            adults,
+            children,
+            rooms,
+          },
+        );
+        return hotelRooms.length;
+      }),
+    );
 
-    const result = availableHotels.map(async (hotel) => ({
-      ...hotel,
-      reviews: await this.reviewService.getReviewsByHotel(hotel.id),
-    }));
+    const availableHotels = hotelsInCity.filter((_, i) => availability[i]);
+
+    const result = Promise.all(
+      availableHotels.map(async (hotel) => ({
+        ...hotel,
+        reviews: await this.reviewService.getReviewsByHotel(hotel.id),
+      })),
+    );
     return result;
   }
 
@@ -69,8 +75,8 @@ export class HotelService {
     };
   }
 
-  bookRoom(id: number, roomId: number, userId: number, dto: BookRoomDto) {
-    return this.roomService.book(roomId, id, userId, dto);
+  async bookRoom(id: number, roomId: number, userId: number, dto: BookRoomDto) {
+    await this.roomService.book(roomId, id, userId, dto);
   }
 
   async postReview(id: number, roomId: number, userId: number, dto: ReviewDto) {

@@ -46,10 +46,14 @@ export class RoomService {
       return [];
     }
 
-    const availableRooms = hotelRooms.filter(
-      async (room) =>
-        await this.bookingService.isRoomAvailable(room.id, from, to),
+    const availability = await Promise.all(
+      hotelRooms.map(
+        async (room) =>
+          await this.bookingService.isRoomAvailable(room.id, from, to),
+      ),
     );
+
+    const availableRooms = hotelRooms.filter((_, i) => availability[i]);
 
     if (availableRooms.length < rooms) {
       return [];
@@ -92,7 +96,7 @@ export class RoomService {
       throw new NotFoundException('this room not exists');
     }
 
-    this.bookingService.book(room, userId, new Date(from), new Date(to));
+    await this.bookingService.book(room, userId, new Date(from), new Date(to));
   }
 
   doesRoomExist(hotelId: number, roomId: number) {

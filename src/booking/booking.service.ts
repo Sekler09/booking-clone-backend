@@ -33,7 +33,7 @@ export class BookingService {
       ],
     });
 
-    return !!booking;
+    return !booking;
   }
 
   async book(room: Room, userId: number, from: Date, to: Date) {

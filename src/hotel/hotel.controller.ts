@@ -28,6 +28,7 @@ import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { CustomAuthGuard } from 'src/common/guards/auth.guard';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
+import { GetHotelResDto } from './dto/get-hotel.res.dto';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -45,8 +46,11 @@ export class HotelController {
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  findAllAvailable(@Query() queryFilters: GetAvailableHotelsQuery) {
-    return this.hotelService.findAllAvailable(queryFilters);
+  async findAllAvailable(
+    @Query() queryFilters: GetAvailableHotelsQuery,
+  ): Promise<GetHotelResDto[]> {
+    const hotels = await this.hotelService.findAllAvailable(queryFilters);
+    return hotels;
   }
 
   @Get('/:id')
@@ -64,11 +68,12 @@ export class HotelController {
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  getHotelById(
+  async getHotelById(
     @Param('id') id: number,
     @Query() queryFilters: GetAvailableHotelsQuery,
-  ) {
-    return this.hotelService.findAvailableById(id, queryFilters);
+  ): Promise<GetHotelResDto> {
+    const hotel = await this.hotelService.findAvailableById(id, queryFilters);
+    return hotel;
   }
 
   @Post('/:id/rooms/:roomId/book')
@@ -94,13 +99,13 @@ export class HotelController {
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  bookHotel(
+  async bookHotel(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
     @Req() req: Request,
     @Body() { from, to }: BookRoomDto,
   ) {
-    return this.hotelService.bookRoom(id, roomId, req.user['sub'], {
+    await this.hotelService.bookRoom(id, roomId, req.user['sub'], {
       from,
       to,
     });

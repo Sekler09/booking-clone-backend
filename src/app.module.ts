@@ -28,7 +28,6 @@ import { BookingModule } from './booking/booking.module';
         database: configService.get('DB_NAME'),
         synchronize: true,
         entities: [__dirname + '/**/entities/*.entity.js'],
-        logging: true,
       }),
       inject: [ConfigService],
     }),
