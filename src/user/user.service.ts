@@ -10,23 +10,12 @@ export class UserService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
-  private users: User[] = [];
-
-  private id = 2;
 
   create(createUserDto: CreateUserDto): Promise<User> {
     return this.usersRepository.save(<User>createUserDto);
   }
 
-  findAll() {
-    return this.users;
-  }
-
-  findOne(opts: Partial<User>) {
+  findOne(opts: Partial<Omit<User, 'reviews' | 'bookings'>>) {
     return this.usersRepository.findOneBy(opts);
-  }
-
-  remove(id: number) {
-    return this.users.filter((user) => user.id !== id);
   }
 }

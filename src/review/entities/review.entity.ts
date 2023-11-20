@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Room } from 'src/room/entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -21,15 +22,10 @@ export class Review {
 
   @ApiProperty({
     description: 'id of the room that review belongs to',
+    type: () => Room,
   })
-  @Column()
-  roomId: number;
-
-  @ApiProperty({
-    description: 'id of the hotel that review belongs to',
-  })
-  @Column()
-  hotelId: number;
+  @ManyToOne(() => Room, (room) => room.reviews)
+  room: Room;
 
   @ApiProperty({
     description: 'rating of the review',

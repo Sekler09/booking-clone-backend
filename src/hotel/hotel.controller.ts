@@ -21,14 +21,13 @@ import {
   ApiForbiddenResponse,
   ApiCreatedResponse,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 
 import { HotelService } from './hotel.service';
-import { HotelDto } from './dto/hotel.dto';
 import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { CustomAuthGuard } from 'src/common/guards/auth.guard';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
-import { Request } from 'express';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -42,12 +41,11 @@ export class HotelController {
   })
   @ApiOkResponse({
     description: 'Hotels were returned',
-    type: [HotelDto],
   })
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  findAllAvailable(@Query() queryFilters: GetAvailableHotelsQuery): HotelDto[] {
+  findAllAvailable(@Query() queryFilters: GetAvailableHotelsQuery) {
     return this.hotelService.findAllAvailable(queryFilters);
   }
 
@@ -59,7 +57,6 @@ export class HotelController {
   @ApiParam({ name: 'id', description: 'id of the hotel' })
   @ApiOkResponse({
     description: 'Hotel was returned',
-    type: HotelDto,
   })
   @ApiNotFoundResponse({
     description: 'Hotel with this id was not found',
@@ -70,7 +67,7 @@ export class HotelController {
   getHotelById(
     @Param('id') id: number,
     @Query() queryFilters: GetAvailableHotelsQuery,
-  ): HotelDto {
+  ) {
     return this.hotelService.findAvailableById(id, queryFilters);
   }
 
@@ -100,9 +97,13 @@ export class HotelController {
   bookHotel(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
+    @Req() req: Request,
     @Body() { from, to }: BookRoomDto,
   ) {
-    return this.hotelService.bookRoom(id, roomId, { from, to });
+    return this.hotelService.bookRoom(id, roomId, req.user['sub'], {
+      from,
+      to,
+    });
   }
 
   @Post('/:id/rooms/:roomId/reviews')
@@ -125,12 +126,12 @@ export class HotelController {
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  postReview(
+  async postReview(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
-    @Body() reviewDto: ReviewDto,
     @Req() req: Request,
+    @Body() reviewDto: ReviewDto,
   ) {
-    this.hotelService.postReview(id, roomId, req.user['sub'], reviewDto);
+    await this.hotelService.postReview(id, roomId, req.user['sub'], reviewDto);
   }
 }

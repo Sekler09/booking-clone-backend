@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { HotelModule } from './hotel/hotel.module';
 import { RoomModule } from './room/room.module';
 import { ReviewModule } from './review/review.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { BookingModule } from './booking/booking.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    BookingModule,
   ],
 })
 export class AppModule {}
