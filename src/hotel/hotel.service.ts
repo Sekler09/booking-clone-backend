@@ -1,72 +1,89 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Hotel, hotelsDb } from './entities/hotel.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { RoomService } from 'src/room/room.service';
 import { ReviewService } from 'src/review/review.service';
-import { HotelDto } from './dto/hotel.dto';
-import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
+import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
+import { Hotel } from './entities/hotel.entity';
 
 @Injectable()
 export class HotelService {
   constructor(
+    @InjectRepository(Hotel)
+    private hotelsRepository: Repository<Hotel>,
     private readonly roomService: RoomService,
     private readonly reviewService: ReviewService,
   ) {}
-  private hotels: Hotel[] = [...hotelsDb];
 
-  findAllAvailable({
+  async findAllAvailable({
     city,
     from,
     to,
     adults,
     children,
     rooms,
-  }: GetAvailableHotelsQuery): HotelDto[] {
-    const hotelsInCity = this.hotels.filter((hotel) => hotel.city === city);
-
-    const availableHotels = hotelsInCity.filter((hotel) => {
-      const hotelRooms = this.roomService.getAvailableRoomsByHotel(hotel.id, {
-        from,
-        to,
-        adults,
-        children,
-        rooms,
-      });
-      return hotelRooms.length;
+  }: GetAvailableHotelsQuery) {
+    const hotelsInCity = await this.hotelsRepository.find({
+      where: { city },
+      relations: {
+        rooms: true,
+      },
     });
 
-    return availableHotels.map((hotel) => ({
-      ...hotel,
-      reviews: this.reviewService.getReviewsByHotel(hotel.id),
-      rooms: this.roomService.getRoomsByHotel(hotel.id),
-    }));
+    const availability = await Promise.all(
+      hotelsInCity.map(async (hotel) => {
+        const hotelRooms = await this.roomService.getAvailableRoomsByHotel(
+          hotel.id,
+          {
+            from,
+            to,
+            adults,
+            children,
+            rooms,
+          },
+        );
+        return hotelRooms.length;
+      }),
+    );
+
+    const availableHotels = hotelsInCity.filter((_, i) => availability[i]);
+
+    const result = Promise.all(
+      availableHotels.map(async (hotel) => ({
+        ...hotel,
+        reviews: await this.reviewService.getReviewsByHotel(hotel.id),
+      })),
+    );
+    return result;
   }
 
-  findAvailableById(
+  async findAvailableById(
     id: number,
     queryFilters: Omit<GetAvailableHotelsQuery, 'city'>,
   ) {
-    const hotel = this.hotels.find((hotel) => hotel.id === id);
+    const hotel = await this.hotelsRepository.findOneBy({ id });
     if (!hotel) {
       throw new NotFoundException('no hotel with such id');
     }
     return {
       ...hotel,
-      reviews: this.reviewService.getReviewsByHotel(hotel.id),
-      rooms: this.roomService.getAvailableRoomsByHotel(hotel.id, queryFilters),
+      reviews: await this.reviewService.getReviewsByHotel(id),
+      rooms: await this.roomService.getAvailableRoomsByHotel(id, queryFilters),
     };
   }
 
-  bookRoom(id: number, roomId: number, dto: BookRoomDto) {
-    return this.roomService.book(roomId, id, dto);
+  async bookRoom(id: number, roomId: number, userId: number, dto: BookRoomDto) {
+    await this.roomService.book(roomId, id, userId, dto);
   }
 
-  postReview(id: number, roomId: number, dto: ReviewDto) {
-    if (!this.roomService.doesRoomExist(id, roomId)) {
+  async postReview(id: number, roomId: number, userId: number, dto: ReviewDto) {
+    const doesRoomExist = await this.roomService.doesRoomExist(id, roomId);
+    if (!doesRoomExist) {
       throw new NotFoundException('Room does not exist');
     }
-
-    return this.reviewService.postReview(id, roomId, dto);
+    return this.reviewService.postReview(roomId, userId, dto);
   }
 }

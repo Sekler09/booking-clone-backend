@@ -1,20 +1,36 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Room, roomsDb } from './entities/room.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query.dto';
+import { BookingService } from 'src/booking/booking.service';
+
 import BookRoomDto from './dto/book-room.dto';
+import { Room } from './entities/room.entity';
 
 @Injectable()
 export class RoomService {
-  private rooms: Room[] = [...roomsDb];
-  getRoomsByHotel(hotelId: number): Room[] {
-    return this.rooms.filter((room) => room.hotelId === hotelId);
+  constructor(
+    @InjectRepository(Room)
+    private roomsRepository: Repository<Room>,
+    private readonly bookingService: BookingService,
+  ) {}
+
+  findOne(opts: Partial<Omit<Room, 'reviews'>>) {
+    return this.roomsRepository.findOneBy(opts);
   }
 
-  getAvailableRoomsByHotel(
+  async getRoomsByHotel(hotelId: number): Promise<Room[]> {
+    return this.roomsRepository.find({
+      where: {
+        hotel: {
+          id: hotelId,
+        },
+      },
+    });
+  }
+
+  async getAvailableRoomsByHotel(
     hotelId: number,
     {
       from,
@@ -23,78 +39,74 @@ export class RoomService {
       adults,
       rooms,
     }: Omit<GetAvailableHotelsQuery, 'city'>,
-  ): Room[] {
-    const hotelRooms = this.getRoomsByHotel(hotelId);
+  ): Promise<Room[]> {
+    const hotelRooms = await this.getRoomsByHotel(hotelId);
+
+    if (hotelRooms.length < rooms) {
+      return [];
+    }
+
+    const availability = await Promise.all(
+      hotelRooms.map(
+        async (room) =>
+          await this.bookingService.isRoomAvailable(room.id, from, to),
+      ),
+    );
+
+    const availableRooms = hotelRooms.filter((_, i) => availability[i]);
+
+    if (availableRooms.length < rooms) {
+      return [];
+    }
 
     if (
-      checkRoomsAvailability(hotelRooms, from, to, children + adults, rooms)
+      availableRooms
+        .sort((a, b) => b.capacity - a.capacity)
+        .slice(0, rooms)
+        .reduce((sum, room) => sum + room.capacity, 0) >=
+      children + adults
     ) {
-      const availableRooms = hotelRooms.filter(
-        (room) =>
-          !room.bookedDates.find(
-            (date) =>
-              new Date(date) >= new Date(from) &&
-              new Date(date) <= new Date(to),
-          ),
-      );
-
       if (rooms === 1) {
         return availableRooms.filter(
           (room) => room.capacity >= children + adults,
         );
       }
-
       return availableRooms;
     }
+
     return [];
   }
 
-  book(roomId: number, hotelId: number, { from, to }: BookRoomDto) {
-    const room = this.rooms.find(
-      (room) => room.id === roomId && room.hotelId === hotelId,
-    );
+  async book(
+    roomId: number,
+    hotelId: number,
+    userId: number,
+    { from, to }: BookRoomDto,
+  ) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id: roomId,
+        hotel: {
+          id: hotelId,
+        },
+      },
+    });
 
     if (!room) {
       throw new NotFoundException('this room not exists');
     }
 
-    const isRoomAvailable = !room.bookedDates.find(
-      (date) =>
-        new Date(date) >= new Date(from) && new Date(date) <= new Date(to),
-    );
-
-    if (!isRoomAvailable) {
-      throw new ForbiddenException('room is already booked in this dates');
-    }
-
-    room.bookedDates.push(...[from, to]);
+    await this.bookingService.book(room, userId, new Date(from), new Date(to));
   }
 
   doesRoomExist(hotelId: number, roomId: number) {
-    return !!this.getRoomsByHotel(hotelId).find((room) => room.id === roomId);
+    return this.roomsRepository.exist({
+      where: {
+        id: roomId,
+        hotel: {
+          id: hotelId,
+        },
+      },
+    });
   }
-}
-
-function checkRoomsAvailability(rooms, from, to, capacity, count) {
-  if (rooms.length < count) {
-    return false;
-  }
-
-  const availableRooms = rooms.filter(
-    (room) =>
-      !room.bookedDates.find(
-        (date) => new Date(date) >= from && new Date(date) <= to,
-      ),
-  );
-
-  if (availableRooms.length < count) {
-    return false;
-  }
-
-  return (
-    availableRooms
-      .sort((a, b) => b.capacity - a.capacity)
-      .slice(0, count)
-      .reduce((sum, room) => sum + room.capacity, 0) >= capacity
-  );
 }

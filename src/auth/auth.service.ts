@@ -19,13 +19,16 @@ export class AuthService {
   ) {}
 
   async signup(dto: AuthDto, res: Response): Promise<Tokens> {
-    const userExists = this.userService.findByEmail(dto.email);
+    const userExists = !!(await this.userService.findOne({ email: dto.email }));
     if (userExists) {
       throw new ForbiddenException('User with this email is already exists');
     }
 
     const hashPass = await this.hashData(dto.password);
-    const newUser = this.userService.create({ ...dto, password: hashPass });
+    const newUser = await this.userService.create({
+      ...dto,
+      password: hashPass,
+    });
 
     const tokens = await this.getTokens(newUser.id, newUser.email);
     this.setTokenCookies(res, tokens);
@@ -34,7 +37,7 @@ export class AuthService {
   }
 
   async signin(dto: AuthDto, res: Response): Promise<Tokens> {
-    const user = this.userService.findByEmail(dto.email);
+    const user = await this.userService.findOne({ email: dto.email });
 
     if (!user) {
       throw new UnauthorizedException('Email or password is incorrect');
@@ -56,7 +59,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, res: Response): Promise<Tokens> {
-    const user = this.userService.findOne(userId);
+    const user = await this.userService.findOne({ id: userId });
 
     if (!user) {
       throw new ForbiddenException('Access denied');
@@ -69,7 +72,7 @@ export class AuthService {
   }
 
   getProfile(userId: number) {
-    return this.userService.findOne(userId);
+    return this.userService.findOne({ id: userId });
   }
 
   hashData(data: string) {

@@ -7,18 +7,9 @@ import {
   Max,
   MaxLength,
   Min,
-  MinLength,
 } from 'class-validator';
 
 export class ReviewDto {
-  @ApiProperty({
-    description: 'name of the reviewer',
-    minLength: 3,
-  })
-  @IsString()
-  @MinLength(3)
-  username: string;
-
   @ApiProperty({
     description: 'comment of the review',
     minLength: 1,

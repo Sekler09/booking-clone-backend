@@ -86,7 +86,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'User is not authorized',
   })
-  getProfile(@GetCurrentUser('sub') userId: number): User {
+  getProfile(@GetCurrentUser('sub') userId: number): Promise<User> {
     return this.authService.getProfile(userId);
   }
 }
