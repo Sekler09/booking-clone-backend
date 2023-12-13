@@ -18,6 +18,16 @@ export class HotelService {
     private readonly reviewService: ReviewService,
   ) {}
 
+  async findAll({ withRooms } = { withRooms: false }) {
+    const hotels = await this.hotelsRepository.find({
+      relations: {
+        rooms: withRooms,
+      },
+    });
+
+    return hotels;
+  }
+
   async findAllAvailable({
     city,
     from,
@@ -85,5 +95,14 @@ export class HotelService {
       throw new NotFoundException('Room does not exist');
     }
     return this.reviewService.postReview(roomId, userId, dto);
+  }
+
+  async deleteById(id: number) {
+    const doesHotelExist = await this.hotelsRepository.exist({ where: { id } });
+    if (!doesHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+
+    await this.hotelsRepository.delete(id);
   }
 }

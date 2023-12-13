@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -46,10 +47,12 @@ export class HotelController {
   @ApiBadRequestResponse({
     description: 'Bad Request',
   })
-  async findAllAvailable(
+  async findAll(
     @Query() queryFilters: GetAvailableHotelsQuery,
   ): Promise<GetHotelResDto[]> {
-    const hotels = await this.hotelService.findAllAvailable(queryFilters);
+    const hotels = queryFilters.adults
+      ? await this.hotelService.findAllAvailable(queryFilters)
+      : await this.hotelService.findAll({ withRooms: true });
     return hotels;
   }
 
@@ -74,6 +77,25 @@ export class HotelController {
   ): Promise<GetHotelResDto> {
     const hotel = await this.hotelService.findAvailableById(id, queryFilters);
     return hotel;
+  }
+
+  @Delete('/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Deletes a hotel',
+  })
+  @ApiParam({ name: 'id', description: 'id of the hotel' })
+  @ApiOkResponse({
+    description: 'Hotel was deleted',
+  })
+  @ApiNotFoundResponse({
+    description: 'Hotel with this id was not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+  })
+  async deleteHotelById(@Param('id') id: number) {
+    await this.hotelService.deleteById(id);
   }
 
   @Post('/:id/rooms/:roomId/book')

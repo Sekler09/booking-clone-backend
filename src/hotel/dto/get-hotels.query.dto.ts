@@ -17,6 +17,7 @@ export class GetAvailableHotelsQuery {
     example: '2023-11-23',
   })
   @IsDate()
+  @IsOptional()
   @Type(() => Date)
   from: Date;
 
@@ -25,6 +26,7 @@ export class GetAvailableHotelsQuery {
     example: '2023-11-25',
   })
   @IsDate()
+  @IsOptional()
   @Type(() => Date)
   to: Date;
 
@@ -33,6 +35,7 @@ export class GetAvailableHotelsQuery {
     minimum: 1,
   })
   @IsNumber()
+  @IsOptional()
   @Type(() => Number)
   adults: number;
 
@@ -41,6 +44,7 @@ export class GetAvailableHotelsQuery {
     minimum: 0,
   })
   @IsNumber()
+  @IsOptional()
   @Type(() => Number)
   children: number;
 
@@ -49,6 +53,7 @@ export class GetAvailableHotelsQuery {
     minimum: 1,
   })
   @IsNumber()
+  @IsOptional()
   @Type(() => Number)
   rooms: number;
 }
