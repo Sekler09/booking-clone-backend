@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -30,6 +31,7 @@ import { CustomAuthGuard } from 'src/common/guards/auth.guard';
 import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
 import { GetHotelResDto } from './dto/get-hotel.res.dto';
+import { CreateHotelDto } from './dto/create-hotel.dto';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -56,6 +58,24 @@ export class HotelController {
     return hotels;
   }
 
+  @Post('/')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Creates new hotel in database',
+  })
+  @ApiCreatedResponse({
+    description: 'Hotel was created',
+  })
+  @ApiForbiddenResponse({
+    description: 'Hotel with same params already exists',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+  })
+  async createHotel(@Body() hotelDto: CreateHotelDto) {
+    await this.hotelService.createHotel(hotelDto);
+  }
+
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -77,6 +97,24 @@ export class HotelController {
   ): Promise<GetHotelResDto> {
     const hotel = await this.hotelService.findAvailableById(id, queryFilters);
     return hotel;
+  }
+
+  @Patch('/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Updates hotel data',
+  })
+  @ApiOkResponse({
+    description: 'Hotel was updated',
+  })
+  @ApiNotFoundResponse({
+    description: 'Hotel with this id was not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+  })
+  async updateHotel(@Param('id') id: number, @Body() hotelDto: CreateHotelDto) {
+    await this.hotelService.updateHotel(id, hotelDto);
   }
 
   @Delete('/:id')

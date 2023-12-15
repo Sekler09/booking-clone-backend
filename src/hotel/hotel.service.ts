@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -8,6 +12,7 @@ import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
 import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { Hotel } from './entities/hotel.entity';
+import { CreateHotelDto } from './dto/create-hotel.dto';
 
 @Injectable()
 export class HotelService {
@@ -104,5 +109,37 @@ export class HotelService {
     }
 
     await this.hotelsRepository.delete(id);
+  }
+
+  async createHotel(hotelDto: CreateHotelDto) {
+    const isSameHotelExist = await this.hotelsRepository.findOne({
+      where: [
+        { city: hotelDto.city, address: hotelDto.address },
+        { name: hotelDto.name },
+        { image: hotelDto.image },
+      ],
+    });
+    console.log(isSameHotelExist);
+    if (isSameHotelExist) {
+      throw new ForbiddenException('Hotel with same data already exists');
+    }
+
+    const newHotel = new Hotel();
+    newHotel.address = hotelDto.address;
+    newHotel.name = hotelDto.name;
+    newHotel.city = hotelDto.city;
+    newHotel.distance = hotelDto.distance;
+    newHotel.image = hotelDto.image;
+
+    await this.hotelsRepository.save(newHotel);
+  }
+
+  async updateHotel(id: number, data: CreateHotelDto) {
+    const isHotelExist = await this.hotelsRepository.exist({ where: { id } });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+
+    await this.hotelsRepository.update({ id }, data);
   }
 }
