@@ -13,6 +13,7 @@ import { ReviewDto } from 'src/review/dto/review.dto';
 import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
 import { Hotel } from './entities/hotel.entity';
 import { CreateHotelDto } from './dto/create-hotel.dto';
+import { CreateRoomDto } from 'src/room/dto/create-room.dto';
 
 @Injectable()
 export class HotelService {
@@ -119,7 +120,7 @@ export class HotelService {
         { image: hotelDto.image },
       ],
     });
-    console.log(isSameHotelExist);
+
     if (isSameHotelExist) {
       throw new ForbiddenException('Hotel with same data already exists');
     }
@@ -141,5 +142,51 @@ export class HotelService {
     }
 
     await this.hotelsRepository.update({ id }, data);
+  }
+
+  async getHotelRooms(id: number) {
+    const isHotelExist = await this.hotelsRepository.exist({ where: { id } });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+
+    return this.roomService.getRoomsByHotel(id, { reviews: true });
+  }
+
+  async addRoom(hotelId: number, dto: CreateRoomDto) {
+    const hotel = await this.hotelsRepository.findOneBy({ id: hotelId });
+    if (!hotel) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+
+    await this.roomService.createRoom(hotel, dto);
+  }
+
+  async updateRoom(hotelId: number, roomId: number, dto: CreateRoomDto) {
+    const isHotelExist = await this.hotelsRepository.exist({
+      where: { id: hotelId },
+    });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+    const isRoomExist = await this.roomService.doesRoomExist(hotelId, roomId);
+    if (!isRoomExist) {
+      throw new NotFoundException('Room does not exist');
+    }
+    await this.roomService.updateRoom(roomId, dto);
+  }
+
+  async deleteRoom(hotelId: number, roomId: number) {
+    const isHotelExist = await this.hotelsRepository.exist({
+      where: { id: hotelId },
+    });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+    const isRoomExist = await this.roomService.doesRoomExist(hotelId, roomId);
+    if (!isRoomExist) {
+      throw new NotFoundException('Room does not exist');
+    }
+    await this.roomService.deleteRoom(roomId);
   }
 }

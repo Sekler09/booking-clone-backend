@@ -32,6 +32,7 @@ import BookRoomDto from 'src/room/dto/book-room.dto';
 import { ReviewDto } from 'src/review/dto/review.dto';
 import { GetHotelResDto } from './dto/get-hotel.res.dto';
 import { CreateHotelDto } from './dto/create-hotel.dto';
+import { CreateRoomDto } from 'src/room/dto/create-room.dto';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -134,6 +135,31 @@ export class HotelController {
   })
   async deleteHotelById(@Param('id') id: number) {
     await this.hotelService.deleteById(id);
+  }
+
+  @Get('/:id/rooms/')
+  async getHotelRooms(@Param('id') id: number) {
+    const rooms = await this.hotelService.getHotelRooms(id);
+    return rooms;
+  }
+
+  @Post('/:id/rooms/')
+  async addRoom(@Param('id') id: number, @Body() roomDto: CreateRoomDto) {
+    await this.hotelService.addRoom(id, roomDto);
+  }
+
+  @Patch('/:id/rooms/:roomId')
+  async updateRoom(
+    @Param('id') id: number,
+    @Param('roomId') roomId: number,
+    @Body() roomDto: CreateRoomDto,
+  ) {
+    await this.hotelService.updateRoom(id, roomId, roomDto);
+  }
+
+  @Delete('/:id/rooms/:roomId')
+  async deleteRoom(@Param('id') id: number, @Param('roomId') roomId: number) {
+    await this.hotelService.deleteRoom(id, roomId);
   }
 
   @Post('/:id/rooms/:roomId/book')
