@@ -197,6 +197,15 @@ export class HotelController {
     });
   }
 
+  @Get('/:id/rooms/:roomId/reviews')
+  @UseGuards(CustomAuthGuard)
+  async getRoomReviews(
+    @Param('id') id: number,
+    @Param('roomId') roomId: number,
+  ) {
+    return await this.hotelService.getRoomReviews(id, roomId);
+  }
+
   @Post('/:id/rooms/:roomId/reviews')
   @UseGuards(CustomAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -224,5 +233,15 @@ export class HotelController {
     @Body() reviewDto: ReviewDto,
   ) {
     await this.hotelService.postReview(id, roomId, req.user['sub'], reviewDto);
+  }
+
+  @Delete('/:id/rooms/:roomId/reviews/:reviewId')
+  @UseGuards(CustomAuthGuard)
+  async deleteRoomReview(
+    @Param('id') id: number,
+    @Param('roomId') roomId: number,
+    @Param('reviewId') reviewId: number,
+  ) {
+    return await this.hotelService.deleteRoomReview(id, roomId, reviewId);
   }
 }

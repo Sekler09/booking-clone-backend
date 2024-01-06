@@ -189,4 +189,42 @@ export class HotelService {
     }
     await this.roomService.deleteRoom(roomId);
   }
+
+  async getRoomReviews(hotelId: number, roomId: number) {
+    const isHotelExist = await this.hotelsRepository.exist({
+      where: { id: hotelId },
+    });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+    const isRoomExist = await this.roomService.doesRoomExist(hotelId, roomId);
+    if (!isRoomExist) {
+      throw new NotFoundException('Room does not exist');
+    }
+    return await this.reviewService.getReviewByRoom(roomId);
+  }
+
+  async deleteRoomReview(hotelId: number, roomId: number, reviewId: number) {
+    const isHotelExist = await this.hotelsRepository.exist({
+      where: { id: hotelId },
+    });
+    if (!isHotelExist) {
+      throw new NotFoundException('Hotel does not exist');
+    }
+    const isRoomExist = await this.roomService.doesRoomExist(hotelId, roomId);
+    if (!isRoomExist) {
+      throw new NotFoundException('Room does not exist');
+    }
+
+    const isReviewExist = await this.reviewService.isReviewExist(
+      roomId,
+      reviewId,
+    );
+
+    if (!isReviewExist) {
+      throw new NotFoundException('Review does not exist');
+    }
+
+    await this.reviewService.deleteReview(reviewId);
+  }
 }
