@@ -17,6 +17,10 @@ export class User {
   @Column()
   password: string;
 
+  @ApiProperty()
+  @Column({ default: false })
+  isAdmin: boolean;
+
   @ApiProperty({ type: () => Review })
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];

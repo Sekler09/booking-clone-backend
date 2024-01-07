@@ -33,6 +33,7 @@ import { ReviewDto } from 'src/review/dto/review.dto';
 import { GetHotelResDto } from './dto/get-hotel.res.dto';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { CreateRoomDto } from 'src/room/dto/create-room.dto';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -60,6 +61,7 @@ export class HotelController {
   }
 
   @Post('/')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Creates new hotel in database',
@@ -101,6 +103,7 @@ export class HotelController {
   }
 
   @Patch('/:id')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Updates hotel data',
@@ -119,6 +122,7 @@ export class HotelController {
   }
 
   @Delete('/:id')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Deletes a hotel',
@@ -138,17 +142,20 @@ export class HotelController {
   }
 
   @Get('/:id/rooms/')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async getHotelRooms(@Param('id') id: number) {
     const rooms = await this.hotelService.getHotelRooms(id);
     return rooms;
   }
 
   @Post('/:id/rooms/')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async addRoom(@Param('id') id: number, @Body() roomDto: CreateRoomDto) {
     await this.hotelService.addRoom(id, roomDto);
   }
 
   @Patch('/:id/rooms/:roomId')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async updateRoom(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
@@ -158,6 +165,7 @@ export class HotelController {
   }
 
   @Delete('/:id/rooms/:roomId')
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async deleteRoom(@Param('id') id: number, @Param('roomId') roomId: number) {
     await this.hotelService.deleteRoom(id, roomId);
   }
@@ -198,7 +206,7 @@ export class HotelController {
   }
 
   @Get('/:id/rooms/:roomId/reviews')
-  @UseGuards(CustomAuthGuard)
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async getRoomReviews(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
@@ -236,7 +244,7 @@ export class HotelController {
   }
 
   @Delete('/:id/rooms/:roomId/reviews/:reviewId')
-  @UseGuards(CustomAuthGuard)
+  @UseGuards(CustomAuthGuard, AdminGuard)
   async deleteRoomReview(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
