@@ -88,7 +88,7 @@ export class AuthService {
         },
         {
           secret: 'at-secret',
-          expiresIn: 15,
+          expiresIn: '15min',
         },
       ),
       this.jwtService.signAsync(
@@ -121,7 +121,7 @@ export class AuthService {
       secure: true,
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 15, // 15min
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
       path: '/',
     });
   }

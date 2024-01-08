@@ -59,4 +59,40 @@ export class ReviewService {
     review.user = user;
     await this.reviewsRepository.save(review);
   }
+
+  async getReviewByRoom(roomId: number) {
+    return await this.reviewsRepository.find({
+      where: {
+        room: {
+          id: roomId,
+        },
+      },
+      relations: {
+        user: true,
+      },
+      select: {
+        user: {
+          id: true,
+          email: true,
+        },
+      },
+    });
+  }
+
+  async isReviewExist(roomId: number, reviewId: number) {
+    return await this.reviewsRepository.exist({
+      where: {
+        id: reviewId,
+        room: {
+          id: roomId,
+        },
+      },
+    });
+  }
+
+  async deleteReview(reviewId: number) {
+    await this.reviewsRepository.delete({
+      id: reviewId,
+    });
+  }
 }
