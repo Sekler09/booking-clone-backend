@@ -6,14 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { RoomService } from 'src/room/room.service';
-import { ReviewService } from 'src/review/review.service';
-import BookRoomDto from 'src/room/dto/book-room.dto';
-import { ReviewDto } from 'src/review/dto/review.dto';
-import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
-import { Hotel } from './entities/hotel.entity';
-import { CreateHotelDto } from './dto/create-hotel.dto';
-import { CreateRoomDto } from 'src/room/dto/create-room.dto';
+import { RoomService } from 'src/room/service';
+import { ReviewService } from 'src/review/service';
+import BookRoomDto from 'src/room/dto/book-room';
+import { ReviewDto } from 'src/review/dto/review';
+import { GetAvailableHotelsQuery } from './dto/get-hotels.query';
+import { Hotel } from './entities/hotel';
+import { CreateHotelDto } from './dto/create-hotel';
+import { CreateRoomDto } from 'src/room/dto/create-room';
 
 @Injectable()
 export class HotelService {
@@ -125,14 +125,7 @@ export class HotelService {
       throw new ForbiddenException('Hotel with same data already exists');
     }
 
-    const newHotel = new Hotel();
-    newHotel.address = hotelDto.address;
-    newHotel.name = hotelDto.name;
-    newHotel.city = hotelDto.city;
-    newHotel.distance = hotelDto.distance;
-    newHotel.image = hotelDto.image;
-
-    await this.hotelsRepository.save(newHotel);
+    await this.hotelsRepository.save(hotelDto);
   }
 
   async updateHotel(id: number, data: CreateHotelDto) {

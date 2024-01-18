@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Hotel } from '../entities/hotel.entity';
+import { Hotel } from '../entities/hotel';
 import {
   IsNumber,
   IsString,

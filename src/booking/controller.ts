@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common/decorators';
-import { BookingService } from './booking.service';
+import { BookingService } from './service';
 
 @Controller('booking')
 export class BookingController {

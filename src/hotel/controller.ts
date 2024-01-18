@@ -25,15 +25,16 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { HotelService } from './hotel.service';
-import { GetAvailableHotelsQuery } from './dto/get-hotels.query.dto';
-import { CustomAuthGuard } from 'src/common/guards/auth.guard';
-import BookRoomDto from 'src/room/dto/book-room.dto';
-import { ReviewDto } from 'src/review/dto/review.dto';
-import { GetHotelResDto } from './dto/get-hotel.res.dto';
-import { CreateHotelDto } from './dto/create-hotel.dto';
-import { CreateRoomDto } from 'src/room/dto/create-room.dto';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { HotelService } from './service';
+import { GetAvailableHotelsQuery } from './dto/get-hotels.query';
+import { CustomAuthGuard } from 'src/common/guards/auth';
+import BookRoomDto from 'src/room/dto/book-room';
+import { ReviewDto } from 'src/review/dto/review';
+import { GetHotelResDto } from './dto/get-hotel.res';
+import { CreateHotelDto } from './dto/create-hotel';
+import { CreateRoomDto } from 'src/room/dto/create-room';
+import { AdminGuard } from 'src/common/guards/admin';
+import { Hotel } from './entities/hotel';
 
 @ApiTags('hotels')
 @Controller('hotels')
@@ -53,7 +54,7 @@ export class HotelController {
   })
   async findAll(
     @Query() queryFilters: GetAvailableHotelsQuery,
-  ): Promise<GetHotelResDto[]> {
+  ): Promise<Hotel[]> {
     const hotels = queryFilters.adults
       ? await this.hotelService.findAllAvailable(queryFilters)
       : await this.hotelService.findAll({ withRooms: true });

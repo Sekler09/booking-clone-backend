@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Room } from '../entities/room.entity';
+import { Room } from '../entities/room.en';
 import { Column } from 'typeorm';
-import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column.transformer';
+import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column';
 
 export class CreateRoomDto
   implements Omit<Room, 'id' | 'reviews' | 'hotel' | 'bookings'>

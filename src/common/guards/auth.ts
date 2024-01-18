@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from '../../auth/auth.service';
-import { UserService } from 'src/user/user.service';
+import { AuthService } from '../../auth/service';
+import { UserService } from 'src/user/service';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

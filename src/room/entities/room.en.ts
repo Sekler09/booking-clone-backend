@@ -7,10 +7,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Review } from 'src/review/entities/review.entity';
-import { Booking } from 'src/booking/entities/booking.entity';
-import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column.transformer';
-import { Hotel } from 'src/hotel/entities/hotel.entity';
+import { Review } from 'src/review/entities/review';
+import { Booking } from 'src/booking/entities/booking';
+import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column';
+import { Hotel } from 'src/hotel/entities/hotel';
 
 @Entity()
 export class Room {

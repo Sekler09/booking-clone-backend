@@ -1,5 +1,5 @@
-import { Room } from 'src/room/entities/room.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Room } from 'src/room/entities/room.en';
+import { User } from 'src/user/entities/user';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

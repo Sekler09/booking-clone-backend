@@ -2,13 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query.dto';
-import { BookingService } from 'src/booking/booking.service';
+import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query';
+import { BookingService } from 'src/booking/service';
 
-import BookRoomDto from './dto/book-room.dto';
-import { Room } from './entities/room.entity';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { Hotel } from 'src/hotel/entities/hotel.entity';
+import BookRoomDto from './dto/book-room';
+import { Room } from './entities/room.en';
+import { CreateRoomDto } from './dto/create-room';
+import { Hotel } from 'src/hotel/entities/hotel';
 
 @Injectable()
 export class RoomService {
@@ -114,13 +114,7 @@ export class RoomService {
   }
 
   async createRoom(hotel: Hotel, dto: CreateRoomDto) {
-    const room = new Room();
-    room.hotel = hotel;
-    room.capacity = dto.capacity;
-    room.price = dto.price;
-    room.type = dto.type;
-
-    await this.roomsRepository.save(room);
+    await this.roomsRepository.save({ hotel, ...dto });
   }
 
   async updateRoom(roomId: number, dto: CreateRoomDto) {
