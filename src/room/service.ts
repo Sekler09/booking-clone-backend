@@ -2,11 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query';
+import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels';
 import { BookingService } from 'src/booking/service';
 
 import BookRoomDto from './dto/book-room';
-import { Room } from './entities/room.en';
+import { Room } from './entities/room';
 import { CreateRoomDto } from './dto/create-room';
 import { Hotel } from 'src/hotel/entities/hotel';
 

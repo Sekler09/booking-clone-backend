@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column';
-import { Room } from 'src/room/entities/room.en';
+import { Room } from 'src/room/entities/room';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

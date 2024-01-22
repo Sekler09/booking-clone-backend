@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 
 import { UserService } from 'src/user/service';
-import { Room } from 'src/room/entities/room.en';
+import { Room } from 'src/room/entities/room';
 
 import { Booking } from './entities/booking';
 

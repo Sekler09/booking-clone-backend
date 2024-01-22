@@ -10,7 +10,7 @@ import { RoomService } from 'src/room/service';
 import { ReviewService } from 'src/review/service';
 import BookRoomDto from 'src/room/dto/book-room';
 import { ReviewDto } from 'src/review/dto/review';
-import { GetAvailableHotelsQuery } from './dto/get-hotels.query';
+import { GetAvailableHotelsQuery } from './dto/get-hotels';
 import { Hotel } from './entities/hotel';
 import { CreateHotelDto } from './dto/create-hotel';
 import { CreateRoomDto } from 'src/room/dto/create-room';

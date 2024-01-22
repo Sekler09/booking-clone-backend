@@ -26,11 +26,11 @@ import {
 import { Request } from 'express';
 
 import { HotelService } from './service';
-import { GetAvailableHotelsQuery } from './dto/get-hotels.query';
+import { GetAvailableHotelsQuery } from './dto/get-hotels';
 import { CustomAuthGuard } from 'src/common/guards/auth';
 import BookRoomDto from 'src/room/dto/book-room';
 import { ReviewDto } from 'src/review/dto/review';
-import { GetHotelResDto } from './dto/get-hotel.res';
+import { GetHotelResDto } from './dto/get-hotel';
 import { CreateHotelDto } from './dto/create-hotel';
 import { CreateRoomDto } from 'src/room/dto/create-room';
 import { AdminGuard } from 'src/common/guards/admin';

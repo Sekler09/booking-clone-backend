@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { RoomService } from './service';
 import { RoomController } from './controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Room } from './entities/room.en';
+import { Room } from './entities/room';
 import { BookingModule } from 'src/booking/module';
 
 @Module({

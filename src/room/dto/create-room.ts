@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Room } from '../entities/room.en';
+import { Room } from '../entities/room';
 import { Column } from 'typeorm';
 import { DecimalColumnTransformer } from 'src/common/transformers/decimal-column';
 
