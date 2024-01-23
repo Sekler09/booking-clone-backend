@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { RoomService } from './room.service';
-import { RoomController } from './room.controller';
+import { RoomService } from './service';
+import { RoomController } from './controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Room } from './entities/room.entity';
-import { BookingModule } from 'src/booking/booking.module';
+import { Room } from './entities/room';
+import { BookingModule } from 'src/booking/module';
 
 @Module({
   imports: [BookingModule, TypeOrmModule.forFeature([Room])],

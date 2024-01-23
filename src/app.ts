@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { HotelModule } from './hotel/hotel.module';
-import { RoomModule } from './room/room.module';
-import { ReviewModule } from './review/review.module';
-import { BookingModule } from './booking/booking.module';
+import { UserModule } from './user/module';
+import { AuthModule } from './auth/module';
+import { HotelModule } from './hotel/module';
+import { RoomModule } from './room/module';
+import { ReviewModule } from './review/module';
+import { BookingModule } from './booking/module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { BookingModule } from './booking/booking.module';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         synchronize: true,
-        entities: [__dirname + '/**/entities/*.entity.js'],
+        entities: [__dirname + '/**/entities/*.js'],
       }),
       inject: [ConfigService],
     }),

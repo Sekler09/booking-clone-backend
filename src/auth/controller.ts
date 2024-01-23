@@ -18,12 +18,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { Tokens } from './entities/tokens.entity';
-import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
-import { User } from 'src/user/entities/user.entity';
-import { CustomAuthGuard } from '../common/guards/auth.guard';
+import { Tokens } from './entities/tokens';
+import { AuthService } from './service';
+import { AuthDto } from './dto/auth';
+import { GetCurrentUser } from 'src/common/decorators/get-current-user';
+import { User } from 'src/user/entities/user';
+import { CustomAuthGuard } from '../common/guards/auth';
 
 @ApiTags('auth')
 @Controller('auth')

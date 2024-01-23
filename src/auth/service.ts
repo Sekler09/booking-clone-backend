@@ -7,9 +7,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 
-import { AuthDto } from './dto/auth.dto';
-import { UserService } from 'src/user/user.service';
-import { Tokens } from './entities/tokens.entity';
+import { AuthDto } from './dto/auth';
+import { UserService } from 'src/user/service';
+import { Tokens } from './entities/tokens';
 
 @Injectable()
 export class AuthService {
@@ -88,7 +88,7 @@ export class AuthService {
         },
         {
           secret: 'at-secret',
-          expiresIn: 15,
+          expiresIn: '15min',
         },
       ),
       this.jwtService.signAsync(
@@ -121,7 +121,7 @@ export class AuthService {
       secure: true,
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 15, // 15min
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7days
       path: '/',
     });
   }

@@ -2,11 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels.query.dto';
-import { BookingService } from 'src/booking/booking.service';
+import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels';
+import { BookingService } from 'src/booking/service';
 
-import BookRoomDto from './dto/book-room.dto';
-import { Room } from './entities/room.entity';
+import BookRoomDto from './dto/book-room';
+import { Room } from './entities/room';
+import { CreateRoomDto } from './dto/create-room';
+import { Hotel } from 'src/hotel/entities/hotel';
 
 @Injectable()
 export class RoomService {
@@ -20,13 +22,14 @@ export class RoomService {
     return this.roomsRepository.findOneBy(opts);
   }
 
-  async getRoomsByHotel(hotelId: number): Promise<Room[]> {
+  async getRoomsByHotel(hotelId: number, relations = {}): Promise<Room[]> {
     return this.roomsRepository.find({
       where: {
         hotel: {
           id: hotelId,
         },
       },
+      relations,
     });
   }
 
@@ -108,5 +111,17 @@ export class RoomService {
         },
       },
     });
+  }
+
+  async createRoom(hotel: Hotel, dto: CreateRoomDto) {
+    await this.roomsRepository.save({ hotel, ...dto });
+  }
+
+  async updateRoom(roomId: number, dto: CreateRoomDto) {
+    await this.roomsRepository.update({ id: roomId }, dto);
+  }
+
+  async deleteRoom(roomId: number) {
+    await this.roomsRepository.delete(roomId);
   }
 }

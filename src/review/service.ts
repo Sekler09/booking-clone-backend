@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Review } from './entities/review.entity';
-import { ReviewDto } from './dto/review.dto';
+import { Review } from './entities/review';
+import { ReviewDto } from './dto/review';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserService } from 'src/user/user.service';
-import { RoomService } from 'src/room/room.service';
+import { UserService } from 'src/user/service';
+import { RoomService } from 'src/room/service';
 
 @Injectable()
 export class ReviewService {
@@ -52,11 +52,42 @@ export class ReviewService {
       id: roomId,
     });
 
-    const review = new Review();
-    review.comment = reviewDto.comment;
-    review.rating = reviewDto.rating;
-    review.room = room;
-    review.user = user;
-    await this.reviewsRepository.save(review);
+    await this.reviewsRepository.save({ room, user, ...reviewDto });
+  }
+
+  async getReviewByRoom(roomId: number) {
+    return await this.reviewsRepository.find({
+      where: {
+        room: {
+          id: roomId,
+        },
+      },
+      relations: {
+        user: true,
+      },
+      select: {
+        user: {
+          id: true,
+          email: true,
+        },
+      },
+    });
+  }
+
+  async isReviewExist(roomId: number, reviewId: number) {
+    return await this.reviewsRepository.exist({
+      where: {
+        id: reviewId,
+        room: {
+          id: roomId,
+        },
+      },
+    });
+  }
+
+  async deleteReview(reviewId: number) {
+    await this.reviewsRepository.delete({
+      id: reviewId,
+    });
   }
 }
