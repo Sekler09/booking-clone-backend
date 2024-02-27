@@ -1,18 +1,21 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, MoreThanOrEqual, Repository } from 'typeorm';
 
-import { UserService } from 'src/user/service';
 import { Room } from 'src/room/entities/room';
 
 import { Booking } from './entities/booking';
+import { User } from 'src/user/entities/user';
 
 @Injectable()
 export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
-    private readonly userService: UserService,
   ) {}
 
   async isRoomAvailable(roomId: number, from: Date, to: Date) {
@@ -36,7 +39,7 @@ export class BookingService {
     return !booking;
   }
 
-  async book(room: Room, userId: number, from: Date, to: Date) {
+  async book(room: Room, user: User, from: Date, to: Date) {
     const isRoomAvailable = await this.isRoomAvailable(
       room.id,
       new Date(from),
@@ -49,10 +52,53 @@ export class BookingService {
 
     const booking = new Booking();
     booking.room = room;
-    booking.user = await this.userService.findOne({ id: userId });
+    booking.user = user;
     booking.startDate = from;
     booking.endDate = to;
 
     await this.bookingRepository.save(booking);
+  }
+
+  getUserBookings(id: number) {
+    return this.bookingRepository.find({
+      where: {
+        user: { id },
+        startDate: MoreThanOrEqual(new Date()),
+      },
+      relations: {
+        room: {
+          hotel: true,
+        },
+      },
+      select: {
+        room: {
+          hotel: {
+            name: true,
+            city: true,
+          },
+          price: true,
+        },
+        startDate: true,
+        endDate: true,
+        id: true,
+      },
+    });
+  }
+
+  async cancelUserBooking(userId: number, bookingId: number) {
+    const isBookingExists = await this.bookingRepository.exist({
+      where: {
+        id: bookingId,
+        user: {
+          id: userId,
+        },
+      },
+    });
+
+    if (!isBookingExists) {
+      throw new NotFoundException('Such booking does not exist');
+    }
+
+    await this.bookingRepository.delete({ id: bookingId });
   }
 }

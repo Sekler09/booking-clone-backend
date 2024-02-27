@@ -9,6 +9,7 @@ import BookRoomDto from './dto/book-room';
 import { Room } from './entities/room';
 import { CreateRoomDto } from './dto/create-room';
 import { Hotel } from 'src/hotel/entities/hotel';
+import { User } from 'src/user/entities/user';
 
 @Injectable()
 export class RoomService {
@@ -83,7 +84,7 @@ export class RoomService {
   async book(
     roomId: number,
     hotelId: number,
-    userId: number,
+    user: User,
     { from, to }: BookRoomDto,
   ) {
     const room = await this.roomsRepository.findOne({
@@ -99,7 +100,7 @@ export class RoomService {
       throw new NotFoundException('this room not exists');
     }
 
-    await this.bookingService.book(room, userId, new Date(from), new Date(to));
+    await this.bookingService.book(room, user, new Date(from), new Date(to));
   }
 
   doesRoomExist(hotelId: number, roomId: number) {

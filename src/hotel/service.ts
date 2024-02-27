@@ -14,6 +14,7 @@ import { GetAvailableHotelsQuery } from './dto/get-hotels';
 import { Hotel } from './entities/hotel';
 import { CreateHotelDto } from './dto/create-hotel';
 import { CreateRoomDto } from 'src/room/dto/create-room';
+import { UserService } from 'src/user/service';
 
 @Injectable()
 export class HotelService {
@@ -22,6 +23,7 @@ export class HotelService {
     private hotelsRepository: Repository<Hotel>,
     private readonly roomService: RoomService,
     private readonly reviewService: ReviewService,
+    private readonly userService: UserService,
   ) {}
 
   async findAll({ withRooms } = { withRooms: false }) {
@@ -92,7 +94,8 @@ export class HotelService {
   }
 
   async bookRoom(id: number, roomId: number, userId: number, dto: BookRoomDto) {
-    await this.roomService.book(roomId, id, userId, dto);
+    const user = await this.userService.findOne({ id: userId });
+    await this.roomService.book(roomId, id, user, dto);
   }
 
   async postReview(id: number, roomId: number, userId: number, dto: ReviewDto) {
