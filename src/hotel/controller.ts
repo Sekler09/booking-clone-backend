@@ -57,7 +57,10 @@ export class HotelController {
   ): Promise<Hotel[]> {
     const hotels = queryFilters.adults
       ? await this.hotelService.findAllAvailable(queryFilters)
-      : await this.hotelService.findAll({ withRooms: true });
+      : await this.hotelService.findAll({
+          withRooms: true,
+          search: queryFilters.search || '',
+        });
     return hotels;
   }
 
@@ -144,8 +147,11 @@ export class HotelController {
 
   @Get('/:id/rooms/')
   @UseGuards(CustomAuthGuard, AdminGuard)
-  async getHotelRooms(@Param('id') id: number) {
-    const rooms = await this.hotelService.getHotelRooms(id);
+  async getHotelRooms(
+    @Param('id') id: number,
+    @Query('search') search: string,
+  ) {
+    const rooms = await this.hotelService.getHotelRooms(id, search);
     return rooms;
   }
 
@@ -211,8 +217,9 @@ export class HotelController {
   async getRoomReviews(
     @Param('id') id: number,
     @Param('roomId') roomId: number,
+    @Query('search') search: string,
   ) {
-    return await this.hotelService.getRoomReviews(id, roomId);
+    return await this.hotelService.getRoomReviews(id, roomId, search);
   }
 
   @Post('/:id/rooms/:roomId/reviews')

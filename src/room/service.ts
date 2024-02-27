@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels';
 import { BookingService } from 'src/booking/service';
@@ -23,9 +23,14 @@ export class RoomService {
     return this.roomsRepository.findOneBy(opts);
   }
 
-  async getRoomsByHotel(hotelId: number, relations = {}): Promise<Room[]> {
+  async getRoomsByHotel(
+    hotelId: number,
+    search = '',
+    relations = {},
+  ): Promise<Room[]> {
     return this.roomsRepository.find({
       where: {
+        type: ILike(`%${search}%`),
         hotel: {
           id: hotelId,
         },
@@ -42,7 +47,7 @@ export class RoomService {
       children,
       adults,
       rooms,
-    }: Omit<GetAvailableHotelsQuery, 'city'>,
+    }: Omit<GetAvailableHotelsQuery, 'city' | 'search'>,
   ): Promise<Room[]> {
     const hotelRooms = await this.getRoomsByHotel(hotelId);
 
