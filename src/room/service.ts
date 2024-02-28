@@ -25,9 +25,11 @@ export class RoomService {
 
   async getRoomsByHotel(
     hotelId: number,
+    sort = '',
     search = '',
     relations = {},
   ): Promise<Room[]> {
+    const [field, order] = sort ? sort.split('.') : ['id', 'asc'];
     return this.roomsRepository.find({
       where: {
         type: ILike(`%${search}%`),
@@ -36,6 +38,9 @@ export class RoomService {
         },
       },
       relations,
+      order: {
+        [field]: order,
+      },
     });
   }
 
@@ -47,7 +52,7 @@ export class RoomService {
       children,
       adults,
       rooms,
-    }: Omit<GetAvailableHotelsQuery, 'city' | 'search'>,
+    }: Omit<GetAvailableHotelsQuery, 'city' | 'search' | 'sort'>,
   ): Promise<Room[]> {
     const hotelRooms = await this.getRoomsByHotel(hotelId);
 

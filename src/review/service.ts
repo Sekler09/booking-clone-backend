@@ -55,7 +55,8 @@ export class ReviewService {
     await this.reviewsRepository.save({ room, user, ...reviewDto });
   }
 
-  async getReviewByRoom(roomId: number, search = '') {
+  async getReviewByRoom(roomId: number, search = '', sort = '') {
+    const [field, order] = sort ? sort.split('.') : ['id', 'asc'];
     return await this.reviewsRepository.find({
       where: {
         room: {
@@ -71,6 +72,9 @@ export class ReviewService {
           id: true,
           email: true,
         },
+      },
+      order: {
+        [field]: order,
       },
     });
   }

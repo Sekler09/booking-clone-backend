@@ -60,4 +60,8 @@ export class GetAvailableHotelsQuery {
   @IsString()
   @IsOptional()
   search: string;
+
+  @IsString()
+  @IsOptional()
+  sort: string;
 }

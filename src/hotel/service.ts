@@ -26,13 +26,19 @@ export class HotelService {
     private readonly userService: UserService,
   ) {}
 
-  async findAll({ withRooms, search } = { withRooms: false, search: '' }) {
+  async findAll(
+    { withRooms, search, sort } = { withRooms: false, search: '', sort: '' },
+  ) {
+    const [field, order] = sort ? sort.split('.') : ['id', 'asc'];
     const hotels = await this.hotelsRepository.find({
       where: {
         name: ILike(`%${search}%`),
       },
       relations: {
         rooms: withRooms,
+      },
+      order: {
+        [field]: order,
       },
     });
 
@@ -143,13 +149,15 @@ export class HotelService {
     await this.hotelsRepository.update({ id }, data);
   }
 
-  async getHotelRooms(id: number, search: string) {
+  async getHotelRooms(id: number, search: string, sort: string) {
     const isHotelExist = await this.hotelsRepository.exist({ where: { id } });
     if (!isHotelExist) {
       throw new NotFoundException('Hotel does not exist');
     }
 
-    return this.roomService.getRoomsByHotel(id, search, { reviews: true });
+    return this.roomService.getRoomsByHotel(id, sort, search, {
+      reviews: true,
+    });
   }
 
   async addRoom(hotelId: number, dto: CreateRoomDto) {
@@ -189,7 +197,12 @@ export class HotelService {
     await this.roomService.deleteRoom(roomId);
   }
 
-  async getRoomReviews(hotelId: number, roomId: number, search = '') {
+  async getRoomReviews(
+    hotelId: number,
+    roomId: number,
+    search = '',
+    sort = '',
+  ) {
     const isHotelExist = await this.hotelsRepository.exist({
       where: { id: hotelId },
     });
@@ -200,7 +213,7 @@ export class HotelService {
     if (!isRoomExist) {
       throw new NotFoundException('Room does not exist');
     }
-    return await this.reviewService.getReviewByRoom(roomId, search);
+    return await this.reviewService.getReviewByRoom(roomId, search, sort);
   }
 
   async deleteRoomReview(hotelId: number, roomId: number, reviewId: number) {
