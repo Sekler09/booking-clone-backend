@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 import { Room } from 'src/room/entities/room';
 
@@ -32,6 +32,13 @@ export class BookingService {
             id: roomId,
           },
           endDate: Between(from, to),
+        },
+        {
+          room: {
+            id: roomId,
+          },
+          endDate: MoreThanOrEqual(to),
+          startDate: LessThanOrEqual(from),
         },
       ],
     });
