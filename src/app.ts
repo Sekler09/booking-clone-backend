@@ -8,12 +8,14 @@ import { HotelModule } from './hotel/module';
 import { RoomModule } from './room/module';
 import { ReviewModule } from './review/module';
 import { BookingModule } from './booking/module';
+import { EventsModule } from './websocket/module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     HotelModule,
+    EventsModule,
     RoomModule,
     ReviewModule,
     ConfigModule.forRoot({ isGlobal: true }),
