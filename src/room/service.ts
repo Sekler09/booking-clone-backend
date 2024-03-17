@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 import { GetAvailableHotelsQuery } from 'src/hotel/dto/get-hotels';
 import { BookingService } from 'src/booking/service';
@@ -9,6 +9,7 @@ import BookRoomDto from './dto/book-room';
 import { Room } from './entities/room';
 import { CreateRoomDto } from './dto/create-room';
 import { Hotel } from 'src/hotel/entities/hotel';
+import { User } from 'src/user/entities/user';
 
 @Injectable()
 export class RoomService {
@@ -22,14 +23,24 @@ export class RoomService {
     return this.roomsRepository.findOneBy(opts);
   }
 
-  async getRoomsByHotel(hotelId: number, relations = {}): Promise<Room[]> {
+  async getRoomsByHotel(
+    hotelId: number,
+    sort = '',
+    search = '',
+    relations = {},
+  ): Promise<Room[]> {
+    const [field, order] = sort ? sort.split('.') : ['id', 'asc'];
     return this.roomsRepository.find({
       where: {
+        type: ILike(`%${search}%`),
         hotel: {
           id: hotelId,
         },
       },
       relations,
+      order: {
+        [field]: order,
+      },
     });
   }
 
@@ -41,7 +52,7 @@ export class RoomService {
       children,
       adults,
       rooms,
-    }: Omit<GetAvailableHotelsQuery, 'city'>,
+    }: Omit<GetAvailableHotelsQuery, 'city' | 'search' | 'sort'>,
   ): Promise<Room[]> {
     const hotelRooms = await this.getRoomsByHotel(hotelId);
 
@@ -83,7 +94,7 @@ export class RoomService {
   async book(
     roomId: number,
     hotelId: number,
-    userId: number,
+    user: User,
     { from, to }: BookRoomDto,
   ) {
     const room = await this.roomsRepository.findOne({
@@ -99,7 +110,7 @@ export class RoomService {
       throw new NotFoundException('this room not exists');
     }
 
-    await this.bookingService.book(room, userId, new Date(from), new Date(to));
+    await this.bookingService.book(room, user, new Date(from), new Date(to));
   }
 
   doesRoomExist(hotelId: number, roomId: number) {

@@ -56,4 +56,12 @@ export class GetAvailableHotelsQuery {
   @IsOptional()
   @Type(() => Number)
   rooms: number;
+
+  @IsString()
+  @IsOptional()
+  search: string;
+
+  @IsString()
+  @IsOptional()
+  sort: string;
 }

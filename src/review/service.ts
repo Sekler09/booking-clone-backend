@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Review } from './entities/review';
 import { ReviewDto } from './dto/review';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { UserService } from 'src/user/service';
 import { RoomService } from 'src/room/service';
 
@@ -55,12 +55,14 @@ export class ReviewService {
     await this.reviewsRepository.save({ room, user, ...reviewDto });
   }
 
-  async getReviewByRoom(roomId: number) {
+  async getReviewByRoom(roomId: number, search = '', sort = '') {
+    const [field, order] = sort ? sort.split('.') : ['id', 'asc'];
     return await this.reviewsRepository.find({
       where: {
         room: {
           id: roomId,
         },
+        comment: ILike(`%${search}%`),
       },
       relations: {
         user: true,
@@ -70,6 +72,9 @@ export class ReviewService {
           id: true,
           email: true,
         },
+      },
+      order: {
+        [field]: order,
       },
     });
   }
